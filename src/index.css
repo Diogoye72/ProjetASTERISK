@@ -8,50 +8,50 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 218 30% 98%;
-    --foreground: 220 40% 15%;
+    --background: 240 10% 98%;
+    --foreground: 240 15% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 40% 15%;
+    --card-foreground: 240 15% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 40% 15%;
+    --popover-foreground: 240 15% 15%;
 
-    --primary: 195 100% 45%;
+    --primary: 262 83% 58%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 195 100% 65%;
+    --primary-glow: 262 100% 75%;
 
-    --secondary: 217 32% 92%;
-    --secondary-foreground: 220 40% 20%;
+    --secondary: 240 5% 94%;
+    --secondary-foreground: 240 15% 20%;
 
-    --muted: 217 32% 94%;
-    --muted-foreground: 220 20% 50%;
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 10% 50%;
 
-    --accent: 187 85% 52%;
+    --accent: 142 76% 36%;
     --accent-foreground: 0 0% 100%;
 
-    --success: 142 76% 36%;
+    --success: 120 100% 35%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 45 93% 47%;
+    --warning: 35 100% 50%;
     --warning-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 217 32% 88%;
-    --input: 217 32% 88%;
-    --ring: 195 100% 45%;
+    --border: 240 5% 88%;
+    --input: 240 5% 88%;
+    --ring: 262 83% 58%;
 
-    /* Gradients pour l'interface télécom */
-    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
-    --gradient-accent: linear-gradient(135deg, hsl(var(--accent)), hsl(195 85% 65%));
-    --gradient-surface: linear-gradient(180deg, hsl(218 30% 98%), hsl(217 32% 96%));
+    /* Gradients modernes violet/vert */
+    --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%), hsl(262 100% 75%));
+    --gradient-accent: linear-gradient(135deg, hsl(142 76% 36%), hsl(120 100% 45%));
+    --gradient-surface: linear-gradient(180deg, hsl(240 10% 98%), hsl(240 5% 96%));
     
     /* Shadows élégantes */
-    --shadow-soft: 0 4px 20px -8px hsl(var(--primary) / 0.15);
-    --shadow-glow: 0 0 40px hsl(var(--primary-glow) / 0.3);
-    --shadow-card: 0 2px 12px -4px hsl(220 40% 15% / 0.1);
+    --shadow-soft: 0 4px 20px -8px hsl(262 83% 58% / 0.15);
+    --shadow-glow: 0 0 40px hsl(262 100% 75% / 0.3);
+    --shadow-card: 0 2px 12px -4px hsl(240 15% 15% / 0.1);
 
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
