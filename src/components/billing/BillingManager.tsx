@@ -24,10 +24,10 @@ interface TariffSettings {
 
 export function BillingManager({ data }: BillingManagerProps) {
   const [tariffs, setTariffs] = useState<TariffSettings>({
-    localRate: 0.05,
-    nationalRate: 0.10,
-    internationalRate: 0.25,
-    mobileRate: 0.15,
+    localRate: 25,
+    nationalRate: 50,
+    internationalRate: 125,
+    mobileRate: 75,
     freeMinutes: 60
   });
 
@@ -52,7 +52,14 @@ export function BillingManager({ data }: BillingManagerProps) {
       let callCounts = { local: 0, national: 0, international: 0, mobile: 0 };
 
       calls.forEach(call => {
-        if (call.disposition !== 'ANSWERED') return;
+        // Vérifier si l'appel est facturable (répondu)
+        const disposition = call.disposition?.toLowerCase();
+        const statusNum = parseInt(call.disposition);
+        const isAnswered = disposition === 'answered' || 
+                          disposition === 'répondu' || 
+                          statusNum === 4;
+        
+        if (!isAnswered) return;
         
         const duration = parseInt(call.billsec || call.duration || '0');
         const minutes = Math.ceil(duration / 60);
@@ -83,7 +90,11 @@ export function BillingManager({ data }: BillingManagerProps) {
       return {
         extension,
         totalCalls: calls.length,
-        answeredCalls: calls.filter(c => c.disposition === 'ANSWERED').length,
+        answeredCalls: calls.filter(c => {
+          const disposition = c.disposition?.toLowerCase();
+          const statusNum = parseInt(c.disposition);
+          return disposition === 'answered' || disposition === 'répondu' || statusNum === 4;
+        }).length,
         totalMinutes,
         totalCost,
         callCounts
@@ -136,7 +147,7 @@ export function BillingManager({ data }: BillingManagerProps) {
         
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
           <div>
-            <label className="block text-sm font-medium mb-2">Local (€/min)</label>
+            <label className="block text-sm font-medium mb-2">Local (XOF/min)</label>
             <Input
               type="number"
               step="0.01"
@@ -146,7 +157,7 @@ export function BillingManager({ data }: BillingManagerProps) {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">National (€/min)</label>
+            <label className="block text-sm font-medium mb-2">National (XOF/min)</label>
             <Input
               type="number"
               step="0.01"
@@ -156,7 +167,7 @@ export function BillingManager({ data }: BillingManagerProps) {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">International (€/min)</label>
+            <label className="block text-sm font-medium mb-2">International (XOF/min)</label>
             <Input
               type="number"
               step="0.01"
@@ -166,7 +177,7 @@ export function BillingManager({ data }: BillingManagerProps) {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2">Mobile (€/min)</label>
+            <label className="block text-sm font-medium mb-2">Mobile (XOF/min)</label>
             <Input
               type="number"
               step="0.01"
@@ -193,7 +204,7 @@ export function BillingManager({ data }: BillingManagerProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <StatsCard
               title="Revenus Totaux"
-              value={`€${billingData.totalRevenue.toFixed(2)}`}
+              value={`${billingData.totalRevenue.toFixed(0)} XOF`}
               icon={Euro}
               variant="success"
               subtitle="Tous les appels facturés"
@@ -214,7 +225,7 @@ export function BillingManager({ data }: BillingManagerProps) {
             />
             <StatsCard
               title="Coût Moyen"
-              value={`€${billingData.averageCost.toFixed(2)}`}
+              value={`${billingData.averageCost.toFixed(0)} XOF`}
               icon={Calculator}
               variant="warning"
               subtitle="Par extension"
@@ -267,7 +278,7 @@ export function BillingManager({ data }: BillingManagerProps) {
                       </td>
                       <td className="px-4 py-3">
                         <span className="font-semibold text-success">
-                          €{ext.totalCost.toFixed(2)}
+                          {ext.totalCost.toFixed(0)} XOF
                         </span>
                       </td>
                     </tr>

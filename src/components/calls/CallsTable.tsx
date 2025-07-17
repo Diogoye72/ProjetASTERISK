@@ -42,17 +42,44 @@ export function CallsTable({ data }: CallsTableProps) {
   };
 
   const getStatusBadge = (disposition: string) => {
-    switch (disposition?.toUpperCase()) {
-      case 'ANSWERED':
-        return <Badge variant="default" className="bg-success text-success-foreground">Répondu</Badge>;
-      case 'NO ANSWER':
-        return <Badge variant="secondary">Non répondu</Badge>;
-      case 'BUSY':
-        return <Badge variant="destructive">Occupé</Badge>;
-      case 'FAILED':
-        return <Badge variant="destructive">Échec</Badge>;
-      default:
-        return <Badge variant="outline">{disposition || 'Inconnu'}</Badge>;
+    const status = disposition?.toLowerCase();
+    const statusNum = parseInt(disposition);
+    
+    // Gestion des codes numériques Asterisk
+    if (!isNaN(statusNum)) {
+      switch (statusNum) {
+        case 4:
+          return <Badge variant="default" className="bg-success text-success-foreground">Répondu</Badge>;
+        case 0:
+          return <Badge variant="secondary" className="bg-warning text-warning-foreground">Pas de réponse</Badge>;
+        case 8:
+          return <Badge variant="destructive">Occupé</Badge>;
+        case 15:
+          return <Badge variant="outline" className="bg-accent text-accent-foreground">Transféré</Badge>;
+        case 26:
+          return <Badge variant="outline" className="bg-muted text-muted-foreground">Parké</Badge>;
+        default:
+          return <Badge variant="outline">Code {disposition}</Badge>;
+      }
+    }
+    
+    // Gestion des statuts textuels
+    if (status === 'answered' || status === 'répondu') {
+      return <Badge variant="default" className="bg-success text-success-foreground">Répondu</Badge>;
+    } else if (status === 'no answer' || status === 'pas de réponse') {
+      return <Badge variant="secondary" className="bg-warning text-warning-foreground">Pas de réponse</Badge>;
+    } else if (status === 'busy' || status === 'occupé') {
+      return <Badge variant="destructive">Occupé</Badge>;
+    } else if (status === 'failed' || status === 'échec') {
+      return <Badge variant="destructive">Échec</Badge>;
+    } else if (status?.includes('transfer') || status?.includes('transféré')) {
+      return <Badge variant="outline" className="bg-accent text-accent-foreground">Transféré</Badge>;
+    } else if (status?.includes('park') || status?.includes('parké')) {
+      return <Badge variant="outline" className="bg-muted text-muted-foreground">Parké</Badge>;
+    } else if (status?.includes('spy') || status?.includes('écoute')) {
+      return <Badge variant="outline" className="bg-primary/20 text-primary">Écoute</Badge>;
+    } else {
+      return <Badge variant="outline">{disposition || 'Inconnu'}</Badge>;
     }
   };
 

@@ -42,10 +42,12 @@ export function Dashboard({ data = [], onFileProcessed }: DashboardProps) {
     const totalSeconds = durations.reduce((sum, d) => sum + d, 0);
     const avgSeconds = totalSeconds / durations.length || 0;
     
-    // Calcul du taux de succès (supposant une colonne 'disposition')
-    const successfulCalls = callData.filter(call => 
-      call.disposition === 'ANSWERED' || call.disposition === 'answered'
-    ).length;
+    // Calcul du taux de succès
+    const successfulCalls = callData.filter(call => {
+      const disposition = call.disposition?.toLowerCase();
+      const statusNum = parseInt(call.disposition);
+      return disposition === 'answered' || disposition === 'répondu' || statusNum === 4;
+    }).length;
     const successRate = (successfulCalls / totalCalls) * 100;
 
     const formatDuration = (seconds: number) => {
