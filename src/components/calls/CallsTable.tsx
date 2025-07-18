@@ -29,6 +29,7 @@ export function CallsTable({ data }: CallsTableProps) {
   const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
 
   const formatDuration = (seconds: string) => {
+    if (!seconds || seconds === '0' || seconds === '') return '0:00';
     const secs = parseInt(seconds) || 0;
     const mins = Math.floor(secs / 60);
     const remainingSecs = secs % 60;
@@ -58,6 +59,56 @@ export function CallsTable({ data }: CallsTableProps) {
           return <Badge variant="outline" className="bg-accent text-accent-foreground">Transféré</Badge>;
         case 26:
           return <Badge variant="outline" className="bg-muted text-muted-foreground">Parké</Badge>;
+        case 1:
+          return <Badge variant="default" className="bg-success text-success-foreground">Connecté</Badge>;
+        case 5:
+          return <Badge variant="outline" className="bg-primary/20 text-primary">Reprise Parking</Badge>;
+        case 7:
+          return <Badge variant="outline" className="bg-accent text-accent-foreground">Transféré Aveugle</Badge>;
+        case 9:
+          return <Badge variant="outline" className="bg-muted text-muted-foreground">Abandonné</Badge>;
+        case 10:
+          return <Badge variant="outline" className="bg-primary/20 text-primary">Écoute Active</Badge>;
+        case 11:
+          return <Badge variant="outline" className="bg-accent text-accent-foreground">Conférence</Badge>;
+        case 12:
+          return <Badge variant="outline" className="bg-primary/20 text-primary">Supervision</Badge>;
+        case 14:
+          return <Badge variant="outline" className="bg-muted text-muted-foreground">Timeout</Badge>;
+        case 16:
+          return <Badge variant="outline" className="bg-accent text-accent-foreground">Renvoi</Badge>;
+        case 18:
+          return <Badge variant="destructive">Rejeté</Badge>;
+        case 19:
+          return <Badge variant="outline" className="bg-primary/20 text-primary">Chuchoté</Badge>;
+        case 20:
+          return <Badge variant="outline" className="bg-muted text-muted-foreground">Interrompu</Badge>;
+        case 21:
+          return <Badge variant="outline" className="bg-accent text-accent-foreground">Dévié</Badge>;
+        case 22:
+          return <Badge variant="outline" className="bg-primary/20 text-primary">Mise en Attente</Badge>;
+        case 24:
+          return <Badge variant="destructive">Erreur</Badge>;
+        case 25:
+          return <Badge variant="outline" className="bg-muted text-muted-foreground">Annulé</Badge>;
+        case 28:
+          return <Badge variant="outline" className="bg-accent text-accent-foreground">Follow Me</Badge>;
+        case 29:
+          return <Badge variant="outline" className="bg-primary/20 text-primary">Récupéré du Parking</Badge>;
+        case 34:
+          return <Badge variant="outline" className="bg-accent text-accent-foreground">Transféré Assisté</Badge>;
+        case 35:
+          return <Badge variant="outline" className="bg-primary/20 text-primary">Pickup Groupe</Badge>;
+        case 38:
+          return <Badge variant="outline" className="bg-muted text-muted-foreground">DND Activé</Badge>;
+        case 40:
+          return <Badge variant="outline" className="bg-accent text-accent-foreground">Origination</Badge>;
+        case 51:
+          return <Badge variant="outline" className="bg-primary/20 text-primary">Barge In</Badge>;
+        case 67:
+          return <Badge variant="outline" className="bg-muted text-muted-foreground">Queue Timeout</Badge>;
+        case 91:
+          return <Badge variant="outline" className="bg-accent text-accent-foreground">Extension Mobile</Badge>;
         default:
           return <Badge variant="outline">Code {disposition}</Badge>;
       }

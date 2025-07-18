@@ -1,10 +1,11 @@
 import { useState, useMemo } from "react";
-import { Euro, FileText, Calculator, TrendingUp } from "lucide-react";
+import { Euro, FileText, Calculator, TrendingUp, Eye } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { StatsCard } from "../dashboard/StatsCard";
+import { ExtensionDetails } from "./ExtensionDetails";
 
 interface CallRecord {
   [key: string]: string;
@@ -23,6 +24,7 @@ interface TariffSettings {
 }
 
 export function BillingManager({ data }: BillingManagerProps) {
+  const [selectedExtension, setSelectedExtension] = useState<string | null>(null);
   const [tariffs, setTariffs] = useState<TariffSettings>({
     localRate: 25,
     nationalRate: 50,
@@ -126,6 +128,16 @@ export function BillingManager({ data }: BillingManagerProps) {
         <h3 className="text-lg font-semibold mb-2">Configuration de Facturation</h3>
         <p className="text-muted-foreground">Importez des données d'appels pour configurer la facturation</p>
       </Card>
+    );
+  }
+
+  if (selectedExtension) {
+    return (
+      <ExtensionDetails 
+        extension={selectedExtension}
+        calls={data}
+        onBack={() => setSelectedExtension(null)}
+      />
     );
   }
 
@@ -247,6 +259,7 @@ export function BillingManager({ data }: BillingManagerProps) {
                     <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Minutes</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Répartition</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Coût Total</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
@@ -280,6 +293,17 @@ export function BillingManager({ data }: BillingManagerProps) {
                         <span className="font-semibold text-success">
                           {ext.totalCost.toFixed(0)} XOF
                         </span>
+                      </td>
+                      <td className="px-4 py-3">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setSelectedExtension(ext.extension)}
+                          className="flex items-center space-x-1"
+                        >
+                          <Eye className="w-4 h-4" />
+                          <span>Voir</span>
+                        </Button>
                       </td>
                     </tr>
                   ))}
