@@ -38,13 +38,26 @@ export function BillingManager({ data }: BillingManagerProps) {
 
     const callsByExtension = new Map<string, any[]>();
     
-    // Grouper les appels par extension
+    // Grouper les appels par extension (utiliser à la fois src et dst)
     data.forEach(call => {
-      const extension = call.src || call.clid || 'Inconnu';
-      if (!callsByExtension.has(extension)) {
-        callsByExtension.set(extension, []);
+      const srcExtension = call.src || call.clid;
+      const dstExtension = call.dst;
+      
+      // Ajouter l'appel à l'extension source
+      if (srcExtension && srcExtension !== 'Inconnu') {
+        if (!callsByExtension.has(srcExtension)) {
+          callsByExtension.set(srcExtension, []);
+        }
+        callsByExtension.get(srcExtension)!.push(call);
       }
-      callsByExtension.get(extension)!.push(call);
+      
+      // Ajouter l'appel à l'extension destination si différente
+      if (dstExtension && dstExtension !== srcExtension && dstExtension !== 'Inconnu') {
+        if (!callsByExtension.has(dstExtension)) {
+          callsByExtension.set(dstExtension, []);
+        }
+        callsByExtension.get(dstExtension)!.push(call);
+      }
     });
 
     // Calculer la facturation pour chaque extension
@@ -257,7 +270,7 @@ export function BillingManager({ data }: BillingManagerProps) {
                     <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Extension</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Appels</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Minutes</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Répartition</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Types d'appels</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Coût Total</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Actions</th>
                   </tr>

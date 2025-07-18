@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Download, Phone, Clock, Calendar, ArrowLeft, FileText } from "lucide-react";
+import jsPDF from 'jspdf';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -44,53 +45,85 @@ export function ExtensionDetails({ extension, calls, onBack }: ExtensionDetailsP
   };
 
   const downloadInvoice = () => {
-    const invoiceData = {
-      extension,
-      date: new Date().toLocaleDateString('fr-FR'),
-      totalCalls,
-      answeredCalls,
-      totalDuration: formatDuration(totalDuration),
-      ratePerMinute,
-      totalCost,
-      calls: extensionCalls.map(call => ({
-        date: formatDate(call.calldate || call.start),
-        from: call.src,
-        to: call.dst,
-        duration: formatDuration(parseInt(call.billsec || call.duration || '0')),
-        cost: Math.ceil((parseInt(call.billsec || call.duration || '0')) / 60) * ratePerMinute
-      }))
-    };
-
-    // Créer le contenu de la facture
-    const invoiceContent = `
-FACTURE TÉLÉPHONIQUE
-Extension: ${extension}
-Date: ${invoiceData.date}
-
-RÉSUMÉ:
-- Nombre total d'appels: ${totalCalls}
-- Appels répondus: ${answeredCalls}
-- Durée totale: ${invoiceData.totalDuration}
-- Tarif par minute: ${ratePerMinute} XOF
-- TOTAL: ${totalCost} XOF
-
-DÉTAIL DES APPELS:
-${invoiceData.calls.map(call => 
-  `${call.date} | ${call.from} → ${call.to} | ${call.duration} | ${call.cost} XOF`
-).join('\n')}
-
-Total facturé: ${totalCost} XOF
-    `;
-
-    const blob = new Blob([invoiceContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `facture_${extension}_${new Date().toISOString().split('T')[0]}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    const pdf = new jsPDF();
+    
+    // Configuration de la police
+    pdf.setFont('helvetica');
+    
+    // En-tête
+    pdf.setFontSize(20);
+    pdf.setTextColor(102, 51, 153); // Couleur primaire
+    pdf.text('FACTURE TÉLÉPHONIQUE', 20, 30);
+    
+    // Informations générales
+    pdf.setFontSize(12);
+    pdf.setTextColor(0, 0, 0);
+    pdf.text(`Extension: ${extension}`, 20, 50);
+    pdf.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, 20, 60);
+    
+    // Ligne de séparation
+    pdf.setDrawColor(200, 200, 200);
+    pdf.line(20, 75, 190, 75);
+    
+    // Résumé
+    pdf.setFontSize(14);
+    pdf.setTextColor(102, 51, 153);
+    pdf.text('RÉSUMÉ:', 20, 90);
+    
+    pdf.setFontSize(11);
+    pdf.setTextColor(0, 0, 0);
+    pdf.text(`• Nombre total d'appels: ${totalCalls}`, 25, 105);
+    pdf.text(`• Appels répondus: ${answeredCalls}`, 25, 115);
+    pdf.text(`• Durée totale: ${formatDuration(totalDuration)}`, 25, 125);
+    pdf.text(`• Tarif par minute: ${ratePerMinute} XOF`, 25, 135);
+    
+    // Total avec style
+    pdf.setFontSize(14);
+    pdf.setTextColor(34, 197, 94); // Couleur success
+    pdf.text(`TOTAL: ${totalCost} XOF`, 25, 150);
+    
+    // Détail des appels si la page le permet
+    if (extensionCalls.length > 0) {
+      pdf.setFontSize(14);
+      pdf.setTextColor(102, 51, 153);
+      pdf.text('DÉTAIL DES APPELS:', 20, 170);
+      
+      pdf.setFontSize(9);
+      pdf.setTextColor(0, 0, 0);
+      
+      let yPosition = 185;
+      const maxCalls = 15; // Limite pour tenir sur une page
+      
+      extensionCalls.slice(0, maxCalls).forEach((call) => {
+        const duration = parseInt(call.billsec || call.duration || '0');
+        const cost = Math.ceil(duration / 60) * ratePerMinute;
+        const callText = `${formatDate(call.calldate || call.start)} | ${call.src} → ${call.dst} | ${formatDuration(duration)} | ${cost} XOF`;
+        
+        if (yPosition > 270) { // Nouvelle page si nécessaire
+          pdf.addPage();
+          yPosition = 30;
+        }
+        
+        pdf.text(callText, 20, yPosition);
+        yPosition += 8;
+      });
+      
+      if (extensionCalls.length > maxCalls) {
+        pdf.text(`... et ${extensionCalls.length - maxCalls} autres appels`, 20, yPosition + 5);
+      }
+    }
+    
+    // Pied de page
+    const pageCount = (pdf as any).internal.getNumberOfPages();
+    for (let i = 1; i <= pageCount; i++) {
+      pdf.setPage(i);
+      pdf.setFontSize(8);
+      pdf.setTextColor(128, 128, 128);
+      pdf.text(`Page ${i}/${pageCount} - Généré le ${new Date().toLocaleString('fr-FR')}`, 20, 285);
+    }
+    
+    // Télécharger le PDF
+    pdf.save(`facture_${extension}_${new Date().toISOString().split('T')[0]}.pdf`);
   };
 
   return (

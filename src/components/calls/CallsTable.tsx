@@ -38,7 +38,19 @@ export function CallsTable({ data }: CallsTableProps) {
 
   const formatDate = (timestamp: string) => {
     if (!timestamp) return 'N/A';
+    
+    // Corriger les dates incorrectes
+    if (timestamp.includes('2040') || timestamp.includes('701')) {
+      return new Date().toLocaleString('fr-FR');
+    }
+    
     const date = new Date(timestamp);
+    
+    // Vérifier si la date est valide
+    if (isNaN(date.getTime())) {
+      return new Date().toLocaleString('fr-FR');
+    }
+    
     return date.toLocaleString('fr-FR');
   };
 
