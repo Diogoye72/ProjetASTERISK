@@ -15,19 +15,72 @@ export function CSVUploader({ onFileProcessed }: CSVUploaderProps) {
   const [fileName, setFileName] = useState<string>('');
 
   const parseCSV = (text: string) => {
-    const lines = text.split('\n').filter(line => line.trim());
+    // Nettoyer le texte et gérer les différents types de fins de ligne
+    const cleanText = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    const lines = cleanText.split('\n').filter(line => line.trim());
+    
     if (lines.length === 0) return [];
 
-    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
-    const data = lines.slice(1).map(line => {
-      const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
+    // Fonction pour parser une ligne CSV correctement (gestion des guillemets)
+    const parseCsvLine = (line: string): string[] => {
+      const result: string[] = [];
+      let current = '';
+      let inQuotes = false;
+      let i = 0;
+
+      while (i < line.length) {
+        const char = line[i];
+        
+        if (char === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            // Guillemet échappé ""
+            current += '"';
+            i += 2;
+          } else {
+            // Début ou fin de guillemets
+            inQuotes = !inQuotes;
+            i++;
+          }
+        } else if (char === ',' && !inQuotes) {
+          // Séparateur trouvé hors guillemets
+          result.push(current.trim());
+          current = '';
+          i++;
+        } else {
+          current += char;
+          i++;
+        }
+      }
+      
+      // Ajouter le dernier champ
+      result.push(current.trim());
+      return result;
+    };
+
+    console.log('Première ligne du CSV:', lines[0]);
+    
+    // Parser la ligne d'en-tête
+    const headers = parseCsvLine(lines[0]).map(h => h.replace(/^"|"$/g, ''));
+    console.log('Headers détectés:', headers);
+    
+    // Parser les données
+    const data = lines.slice(1).map((line, index) => {
+      const values = parseCsvLine(line).map(v => v.replace(/^"|"$/g, ''));
       const row: any = {};
-      headers.forEach((header, index) => {
-        row[header] = values[index] || '';
+      
+      headers.forEach((header, headerIndex) => {
+        row[header] = values[headerIndex] || '';
       });
+      
+      // Log pour debug des premières lignes
+      if (index < 3) {
+        console.log(`Ligne ${index + 1}:`, row);
+      }
+      
       return row;
     });
 
+    console.log(`CSV parsé: ${data.length} enregistrements trouvés`);
     return data;
   };
 
@@ -41,16 +94,24 @@ export function CSVUploader({ onFileProcessed }: CSVUploaderProps) {
     setFileName(file.name);
 
     try {
+      console.log('Début du traitement du fichier:', file.name, 'Taille:', file.size, 'bytes');
+      
       const text = await file.text();
+      console.log('Fichier lu, longueur du texte:', text.length);
+      console.log('Aperçu du contenu (100 premiers caractères):', text.substring(0, 100));
+      
       const data = parseCSV(text);
       
       if (data.length === 0) {
+        console.error('Aucune donnée trouvée dans le fichier CSV');
         setUploadStatus('error');
       } else {
+        console.log('Données traitées avec succès:', data.length, 'enregistrements');
         onFileProcessed(data);
         setUploadStatus('success');
       }
     } catch (error) {
+      console.error('Erreur lors du traitement du fichier:', error);
       setUploadStatus('error');
     } finally {
       setProcessing(false);
