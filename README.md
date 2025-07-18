@@ -1,22 +1,106 @@
-# Welcome to your Lovable project
+## ✅ 1. Activer le module CDR CSV
 
-## Project info
+Ouvre le fichier `cdr.conf` :
 
-**URL**: https://lovable.dev/projects/57450bee-42dd-4b6a-8c3e-27175bd86a02
+```bash
+sudo nano /etc/asterisk/cdr.conf
+```
 
-## How can I edit this code?
+Et assure-toi qu’il contient ceci (ou ajoute-le) :
 
-There are several ways of editing your application.
+```ini
+[general]
+enable=yes
+```
 
-**Use Lovable**
+---
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/57450bee-42dd-4b6a-8c3e-27175bd86a02) and start prompting.
+## ✅ 2. Configurer le module `cdr_csv`
 
-Changes made via Lovable will be committed automatically to this repo.
+Édite le fichier :
 
-**Use your preferred IDE**
+```bash
+sudo nano /etc/asterisk/cdr_csv.conf
+```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Et vérifie qu’il contient par défaut ceci :
+
+```ini
+[general]
+loguniqueid=yes
+loguserfield=yes
+accountlogs=yes
+```
+
+Tu peux personnaliser si tu veux un autre nom que `Master.csv`.
+
+---
+
+## ✅ 3. Redémarrer Asterisk
+
+Après modification des fichiers de configuration :
+
+```bash
+sudo systemctl restart asterisk
+```
+
+---
+
+## ✅ 4. Vérifie la présence du fichier
+
+Le fichier devrait être automatiquement généré à chaque appel dans :
+
+```bash
+/var/log/asterisk/cdr-csv/Master.csv
+```
+
+Teste en passant un appel, puis regarde :
+
+```bash
+cat /var/log/asterisk/cdr-csv/Master.csv
+```
+
+---
+
+## ⚠️ Problèmes courants
+
+### 🛑 Le fichier `Master.csv` n’est pas créé ?
+
+* Vérifie que le module est bien chargé :
+
+  ```bash
+  sudo asterisk -rvvv
+  module show like cdr_csv
+  ```
+
+  S'il ne s'affiche pas, charge-le :
+
+  ```bash
+  module load cdr_csv.so
+  ```
+
+* Si besoin, force son chargement au démarrage :
+
+  ```bash
+  sudo nano /etc/asterisk/modules.conf
+  ```
+
+  Et ajoute :
+
+  ```
+  load => cdr_csv.so
+  ```
+
+---
+
+## 📦 Bonus : Créer manuellement le dossier et le fichier (si nécessaire)
+
+Si le dossier `/var/log/asterisk/cdr-csv/` n’existe pas :
+
+```bash
+sudo mkdir -p /var/log/asterisk/cdr-csv
+sudo chown asterisk:asterisk /var/log/asterisk/cdr-csv
+```
 
 The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
 
@@ -36,20 +120,6 @@ npm i
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
 ## What technologies are used for this project?
 
 This project is built with:
@@ -59,16 +129,5 @@ This project is built with:
 - React
 - shadcn-ui
 - Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/57450bee-42dd-4b6a-8c3e-27175bd86a02) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- 
 # ProjetASTERISK
